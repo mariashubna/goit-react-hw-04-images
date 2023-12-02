@@ -14,39 +14,42 @@ export const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadMore, setIsLoadMore] = useState(false);
-  const [isSearchDisabled, setIsSearchDisabled] = useState(false);
+  const [isSearchDisabled, setIsSearchDisabled] = useState(true);
   const [largeImageURL, setLargeImageURL] = useState('');
-const [tags, setTags] = useState('');
-
-
+  const [tags, setTags] = useState('');
   const [error, setError] = useState('');
+
+
   useEffect(() => {
-    
-      setIsLoading(true);
-      setIsSearchDisabled(true);
-   
-      serviceSearch(query, page)
-        .then(({ hits, totalHits }) => {
-          if (!hits.length) {
-            setError('Unfortunately, no images were found for your search query. Please try again.');
-            return;
-          }
-            setImages((prev) => [...prev, ...hits]);
-            setIsLoadMore(page < Math.ceil(totalHits / 12));        
-            setError('');
-        })
-        .catch(error =>
-          setError('Sorry, something went wrong. Please try again later.')
-        )
-        .finally(() => {
-          setIsLoading(false);
-          setIsSearchDisabled(false);
-      });      
-}, [query, page]);
+    if (page !== 1 || query !== '') {
+    setIsLoading(true);
+    setIsSearchDisabled(true);
+    setIsSearchDisabled(false);
   
- const handleSearch = obj => {
-    if (obj.searchQuery.trim() === '') {      
-        setError('What are you looking for?');      
+    serviceSearch(query, page)
+      .then(({ hits, totalHits }) => {
+        if (!hits.length) {
+          setError('Unfortunately, no images were found for your search query. Please try again.');
+          return;
+        }
+  
+        setImages((prev) => [...prev, ...hits]);
+        setIsLoadMore(page < Math.ceil(totalHits / 12));
+        setError('');
+      })
+      .catch(error =>
+        setError('Sorry, something went wrong. Please try again later.')
+      )
+      .finally(() => {
+        setIsLoading(false);
+        setIsSearchDisabled(false);
+      });
+    }
+  }, [query, page]);
+  
+  const handleSearch = obj => {
+    if (obj.searchQuery.trim() === '') {
+      setError('What are you looking for?');
       return;
     }
     if (query !== obj.searchQuery) {
