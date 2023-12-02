@@ -17,7 +17,6 @@ export const App = () => {
   const [isSearchDisabled, setIsSearchDisabled] = useState(false);
   const [largeImageURL, setLargeImageURL] = useState('');
 const [tags, setTags] = useState('');
-const [currentItem, setCurrentItem] = useState(null);
 
 
   const [error, setError] = useState('');
@@ -71,7 +70,7 @@ const [currentItem, setCurrentItem] = useState(null);
 
 
   const  closeModal = () => {
-    setCurrentItem(null);
+    setLargeImageURL(''); 
     setIsModalOpen(false);
   };
    return (
