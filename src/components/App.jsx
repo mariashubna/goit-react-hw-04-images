@@ -5,7 +5,7 @@ import Button from './Button/Button';
 import Loader from './Loader/Loader';
 import Modal from './Modal/Modal';
 import { serviceSearch } from './Searchbar/Pixabay';
-import css from './App.module.css'
+import css from './App.module.css';
 
 export const App = () => {
   const [query, setQuery] = useState('');
@@ -14,36 +14,29 @@ export const App = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadMore, setIsLoadMore] = useState(false);
-  const [isSearchDisabled, setIsSearchDisabled] = useState(true);
   const [largeImageURL, setLargeImageURL] = useState('');
-  const [tags, setTags] = useState('');
   const [error, setError] = useState('');
-
 
   useEffect(() => {
     if (page !== 1 || query !== '') {
-    setIsLoading(true);
-    setIsSearchDisabled(true);
-    setIsSearchDisabled(false);
+      setIsLoading(true);
+      serviceSearch(query, page)
+        .then(({ hits, totalHits }) => {
+          if (!hits.length) {
+            setError('Unfortunately, no images were found for your search query. Please try again.');
+            return;
+          }
   
-    serviceSearch(query, page)
-      .then(({ hits, totalHits }) => {
-        if (!hits.length) {
-          setError('Unfortunately, no images were found for your search query. Please try again.');
-          return;
-        }
-  
-        setImages((prev) => [...prev, ...hits]);
-        setIsLoadMore(page < Math.ceil(totalHits / 12));
-        setError('');
-      })
-      .catch(error =>
-        setError('Sorry, something went wrong. Please try again later.')
-      )
-      .finally(() => {
-        setIsLoading(false);
-        setIsSearchDisabled(false);
-      });
+          setImages((prev) => [...prev, ...hits]);
+          setIsLoadMore(page < Math.ceil(totalHits / 12));
+          setError('');
+        })
+        .catch(error =>
+          setError('Sorry, something went wrong. Please try again later.')
+        )
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   }, [query, page]);
   
@@ -62,29 +55,27 @@ export const App = () => {
   };
 
   const handleLoadMore = () => {
-
     setPage((prev) => prev + 1);
   };
 
- const handleOpenModal = largeImageURL=> {
-  setLargeImageURL(largeImageURL);
-  setIsModalOpen(true); 
+  const handleOpenModal = largeImageURL => {
+    setLargeImageURL(largeImageURL);
+    setIsModalOpen(true); 
   };
 
-
-  const  closeModal = () => {
+  const closeModal = () => {
     setLargeImageURL(''); 
     setIsModalOpen(false);
   };
-   return (
-      <div className={css.main}>
-        <Searchbar onSubmit={handleSearch} />
-        {error && <p>{error}</p>}
-        <ImageGallery items={images} openModal={handleOpenModal} />
-        {isLoading && <Loader />}
-        {isLoadMore && <Button onClick={handleLoadMore} />}
-        {isModalOpen && <Modal largeImageURL={largeImageURL} tags={tags} onClose={closeModal} />}
-      </div>
-    );
-  }
 
+  return (
+    <div className={css.main}>
+      <Searchbar onSubmit={handleSearch} />
+      {error && <p>{error}</p>}
+      <ImageGallery items={images} openModal={handleOpenModal} />
+      {isLoading && <Loader />}
+      {isLoadMore && <Button onClick={handleLoadMore} />}
+      {isModalOpen && <Modal largeImageURL={largeImageURL} onClose={closeModal} />}
+    </div>
+  );
+}
